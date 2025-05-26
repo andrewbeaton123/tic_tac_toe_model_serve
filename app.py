@@ -6,10 +6,20 @@ import pickle as pkl
 import numpy as np 
 import pandas as pd 
 from loguru import logger
+from typing import List
 
+from pydantic import BaseModel
 
 
 app = FastAPI()
+
+
+class predict_request(BaseModel):
+    current_player : int
+    game_state : List
+
+class next_move(BaseModel):
+     move: int
 
 pkl_file_path = "saved_q_values.pkl"
 try:
@@ -30,7 +40,10 @@ agent = MonteCarloAgent(0.0, # setting epsilon to 0 makes it predict base don q 
                         generate_all_states())
 agent.load_q_values(q_values)
 
-@app.post("/next_move", response_model = )
-async def predict_next_move(player: int, board: np.ndarray):
+@app.post("/next_move", response_model=next_move )
+async def predict_next_move(request_data : predict_request) :
     logger.info("starting move predict")
-    agent.predict((TicTacToe(player,pd.DataFrame([board]) )))
+    move_next = agent.get_action( TicTacToe(request_data.current_player, 
+                                np.reshape(request_data.game_state, (3, 3))))
+    logger.info(f"The move is {move_next}")
+    return {"move": move_next}
