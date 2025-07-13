@@ -55,8 +55,17 @@ pip install -r requirements.txt
 
 ## Usage
 
-1.  **Ensure `saved_q_values.pkl` is present**  
-    This file contains the trained Q-values for the agent and must be in the root directory.
+1.  **Q-values File (`saved_q_values.pkl`)**  
+    This file contains the trained Q-values for the agent. By default, `saved_q_values.pkl` is used.
+
+    -   **At Build Time**: You can specify a different Q-values file using the `Q_VALUES_FILE` build argument:
+        ```bash
+        docker build --build-arg Q_VALUES_FILE=path/to/your_q_values.pkl -t my_app .
+        ```
+    -   **At Runtime (using Docker Volume)**: To change the Q-values without rebuilding the image, mount a volume:
+        ```bash
+        docker run -v /path/to/your/q_values.pkl:/app/saved_q_values.pkl my_app
+        ```
 
 2.  **Configure `config.yml`**
     Ensure `config.yml` is present in the root directory with the necessary game configurations. An example is provided in the project structure.
