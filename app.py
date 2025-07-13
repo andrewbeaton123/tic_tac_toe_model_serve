@@ -1,5 +1,5 @@
 import time
-
+#
 
 import numpy as np 
 
@@ -19,23 +19,36 @@ from fastapi.responses import JSONResponse
 
 
 #auth imports
-from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
-from fastapi import Depends
-import os 
+from fastapi.security import APIKeyHeader
+from fastapi import Depends, Security
+import os
 
 
 #using local env
-from dotenv import load_dotenv, dotenv_values 
-load_dotenv() 
+from dotenv import load_dotenv
+load_dotenv()
+
+API_KEY = os.environ.get("API_KEY")
+if not API_KEY :
+    raise Exception("API KEY NOT LOADED")
+API_KEY_NAME = "tic-tac-key"
+
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+    if api_key_header == API_KEY:
+        return api_key_header
+    else:
+        logger.debug(api_key_header)
+        logger.debug(API_KEY)
+        raise HTTPException(
+            status_code=403,
+            detail="Could not validate credentials",
+        )
 
 app = FastAPI()
 #setup loggins to create a new log file every 10mb
 logger.add("logs/app.log", rotation="10 MB", serialize=True)  # JSON logs
-
-azure_scheme = SingleTenantAzureAuthorizationCodeBearer(
-    app_client_id = os.environ["AZURE_CLIENT_ID"],
-    tenant_id=os.environ["AZURE_TENANT_ID"]
-)
 
 class predict_request(BaseModel):
     current_player : int
@@ -56,7 +69,7 @@ agent.load_q_values(q_values)
 
 @app.post("/next_move", response_model=next_move )
 async def predict_next_move(request_data : predict_request,
-                            user = Depends(azure_scheme)) :
+                            api_key: str = Depends(get_api_key)) :
     
     logger.info("starting move predict")
     move_next = agent.get_action( TicTacToe(request_data.current_player, 

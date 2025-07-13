@@ -7,14 +7,36 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 - **REST API**: Predict the next move for a given Tic Tac Toe board state.
 - **Reinforcement Learning**: Uses a pre-trained Monte Carlo agent.
 - **Easy Integration**: Simple HTTP endpoint for predictions.
-- **Logging**: Uses Loguru for informative logging.
+- **Structured Logging**: Uses Loguru for structured, JSON-formatted request and application logging.
+
+## Project Structure
+
+```
+.
+├── app.py                  # Main FastAPI application
+├── requirements.txt        # Python dependencies
+├── saved_q_values.pkl      # Trained Q-values (required)
+├── src/
+│   └── load_q_values.py    # Helper to load Q-values
+├── logs/                   # Directory for log files
+├── dockerfile              # Docker container definition
+├── .gitignore              # Git ignore file
+└── LICENSE                 # Project License
+```
 
 ## Requirements
 
 - Python 3.10+
-- See `requirements.txt` for all dependencies.
+- All dependencies are listed in `requirements.txt`.
 
-Install dependencies with:
+Key dependencies include:
+- `fastapi`: The web framework.
+- `uvicorn`: The ASGI server.
+- `loguru`: For logging.
+- `tic_tac_toe_game`: Custom game logic library.
+- `tic_tac_learn`: Custom reinforcement learning library.
+
+Install all dependencies with:
 
 ```sh
 pip install -r requirements.txt
@@ -22,56 +44,50 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. **Ensure [`saved_q_values.pkl`](saved_q_values.pkl) is present**  
-   The file should contain the trained Q-values for the agent.
+1.  **Ensure `saved_q_values.pkl` is present**  
+    This file contains the trained Q-values for the agent and must be in the root directory.
 
-2. **Start the API server**
+2.  **Start the API server**
 
-```sh
-uvicorn app:app --reload
-```
+    ```sh
+    uvicorn app:app --reload
+    ```
 
-3. **Send a prediction request**
+3.  **Send a prediction request**
 
-POST to `/next_move` with JSON body:
+    Send a `POST` request to the `/next_move` endpoint with a JSON body:
 
-```json
-{
-  "current_player": 1,
-  "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
-}
-```
+    ```json
+    {
+      "current_player": 1,
+      "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
+    }
+    ```
 
-- `current_player`: `1` or `2`
-- `game_state`: Flat list of 9 integers (0=empty, 1=player 1, 2=player 2)
+    -   `current_player`: `1` or `2`.
+    -   `game_state`: A flat list of 9 integers representing the board (0=empty, 1=player 1, 2=player 2).
 
-**Response:**
+    **Example Response:**
 
-```json
-{
-  "move": 6
-}
-```
+    ```json
+    {
+      "move": 6
+    }
+    ```
 
-- `move`: Index (0-8) of the recommended move.
+    -   `move`: The board index (0-8) of the agent's recommended move.
 
-## File Structure
+## Logging
 
-```
-app.py                  # Main FastAPI app
-requirements.txt        # Python dependencies
-saved_q_values.pkl      # Trained Q-values (required)
-mlflow_artifacts/       # (Optional) MLflow artifacts
-```
+The application uses [Loguru](https://loguru.readthedocs.io/en/stable/) for logging.
+- Logs are automatically written to the `logs/` directory.
+- A new log file is created when the current one reaches 10 MB.
+- Logs are in JSON format for easy parsing and analysis.
 
 ## License
 
-MIT License. See [`LICENSE`](LICENSE).
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
 ---
 
 **Author:** Andrew Beaton
-
----
-
-*Note: This repo requires the `tic_tac_toe_game` and `tic_tac_learn` modules, which should be available in your Python environment.*
