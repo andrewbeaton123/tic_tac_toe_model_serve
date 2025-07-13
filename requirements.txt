@@ -75,8 +75,8 @@ SQLAlchemy==2.0.41
 sqlparse==0.5.3
 starlette==0.46.2
 threadpoolctl==3.6.0
-tic_tac_learn @ git+https://github.com/andrewbeaton123/tic_tac_learn.git@85012c9bcf12954ea5ed4d688f7d408ca37c1ff2
-tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git@d8efe797083fce758d5ff870b92cd2e07cde544b
+
+tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git
 tomli==2.2.1
 tqdm==4.67.1
 typing-inspection==0.4.1

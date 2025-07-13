@@ -7,7 +7,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Request
 from tic_tac_toe_game import TicTacToe
 from tic_tac_toe_game.get_all_states import generate_all_states
-from  tic_tac_learn.monte_carlo_learning.monte_carlo_tic_tac_2 import MonteCarloAgent
+from src.prediction_agent import PredictionAgent
 from src.load_q_values import load_q_values
 
 
@@ -58,12 +58,7 @@ class next_move(BaseModel):
 pkl_file_path = Path("saved_q_values.pkl")
 
 q_values = load_q_values(pkl_file_path)
-agent = MonteCarloAgent(0.0, # setting epsilon to 0 makes it predict base don q values every time
-                        generate_all_states())
-
-
-
-agent.load_q_values(q_values)
+agent = PredictionAgent(q_values)
 
 @app.post("/next_move", response_model=next_move )
 async def predict_next_move(request_data : predict_request,
