@@ -8,6 +8,8 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 - **Reinforcement Learning**: Uses a pre-trained Monte Carlo agent.
 - **Easy Integration**: Simple HTTP endpoint for predictions.
 - **Structured Logging**: Uses Loguru for structured, JSON-formatted request and application logging.
+- **Configurable Validation**: Game rules and allowed players are loaded from `config.yml`.
+- **API Key Authentication**: Secure access to the prediction endpoint.
 
 ## Project Structure
 
@@ -16,8 +18,16 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 ├── app.py                  # Main FastAPI application
 ├── requirements.txt        # Python dependencies
 ├── saved_q_values.pkl      # Trained Q-values (required)
+├── config.yml              # Application configuration (e.g., game rules)
 ├── src/
-│   └── load_q_values.py    # Helper to load Q-values
+│   ├── __init__.py
+│   ├── auth.py             # API key authentication logic
+│   ├── config_loader.py    # Loads configuration from config.yml
+│   ├── load_q_values.py    # Helper to load Q-values
+│   ├── logging_config.py   # Loguru configuration
+│   ├── middleware.py       # Custom FastAPI middleware (e.g., request logging)
+│   ├── prediction_agent.py # The prediction agent logic
+│   └── schemas.py          # Pydantic models for request/response validation
 ├── logs/                   # Directory for log files
 ├── dockerfile              # Docker container definition
 ├── .gitignore              # Git ignore file
@@ -35,6 +45,7 @@ Key dependencies include:
 - `loguru`: For logging.
 - `tic_tac_toe_game`: Custom game logic library.
 - `tic_tac_learn`: Custom reinforcement learning library.
+- `PyYAML`: For loading configuration.
 
 Install all dependencies with:
 
@@ -47,15 +58,30 @@ pip install -r requirements.txt
 1.  **Ensure `saved_q_values.pkl` is present**  
     This file contains the trained Q-values for the agent and must be in the root directory.
 
-2.  **Start the API server**
+2.  **Configure `config.yml`**
+    Ensure `config.yml` is present in the root directory with the necessary game configurations. An example is provided in the project structure.
+
+3.  **Set up API Key**
+    The application uses an API key for authentication. Set the `API_KEY` environment variable before starting the application.
+
+    Example (Linux/macOS):
+    ```bash
+    export API_KEY="your_secret_api_key"
+    ```
+    Example (Windows PowerShell):
+    ```powershell
+    $env:API_KEY="your_secret_api_key"
+    ```
+
+4.  **Start the API server**
 
     ```sh
     uvicorn app:app --reload
     ```
 
-3.  **Send a prediction request**
+5.  **Send a prediction request**
 
-    Send a `POST` request to the `/next_move` endpoint with a JSON body:
+    Send a `POST` request to the `/next_move` endpoint with a JSON body and the API key in the header:
 
     ```json
     {
@@ -64,7 +90,10 @@ pip install -r requirements.txt
     }
     ```
 
-    -   `current_player`: `1` or `2`.
+    **Headers:**
+    `tic-tac-key: your_secret_api_key`
+
+    -   `current_player`: `1` or `2` (as defined in `config.yml`).
     -   `game_state`: A flat list of 9 integers representing the board (0=empty, 1=player 1, 2=player 2).
 
     **Example Response:**
