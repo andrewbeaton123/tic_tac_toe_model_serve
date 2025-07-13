@@ -39,8 +39,6 @@ async def get_api_key(api_key_header: str = Security(api_key_header)):
     if api_key_header == API_KEY:
         return api_key_header
     else:
-        logger.debug(api_key_header)
-        logger.debug(API_KEY)
         raise HTTPException(
             status_code=403,
             detail="Could not validate credentials",
