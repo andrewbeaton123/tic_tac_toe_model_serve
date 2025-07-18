@@ -23,6 +23,7 @@ q_values = load_q_values(pkl_file_path)
 agent = PredictionAgent(q_values)
 
 @app.post("/next_move", response_model=next_move)
-async def predict_next_move(request_data: predict_request, api_key: str = Depends(get_api_key)):
+async def predict_next_move(request_data: predict_request,
+                             api_key: str = Depends(get_api_key)):
     move_next = agent.get_action(TicTacToe(request_data.current_player, np.reshape(request_data.game_state, (3, 3))))
     return {"move": move_next}
