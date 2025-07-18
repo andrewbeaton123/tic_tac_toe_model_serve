@@ -31,19 +31,19 @@ jobs:
       - name: Install dependencies
         run: |
           pip install .[test]  
-          pip install coverage-badge
-
-    # run the test and generate the xml
-      - name: Run tests with coverage
-        run: |
-          pytest --cov --cov-report=xml --cov-report=term
-          coverage-badge -o coverage.svg -f
+          pip install pytest-cov
     
-    #generate the badge using the default github actions user 
+    - name: Run tests with coverage
+        run: |
+          pytest --cov --cov-report=xml:coverage.xml --cov-report=term
+      
       - name: Commit coverage badge
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add coverage.svg
-          git commit -m "Update coverage badge" || echo "No changes to commit"
+          git add coverage.xml  # GitHub Actions looks for coverage.xml by default
+          git commit -m "Update coverage report" || echo "No changes to commit"
           git push
+
+      - name: Upload coverage to GitHub
+        uses: codecov/codecov-github-action@v2
