@@ -33,7 +33,7 @@ jobs:
           pip install .[test]  
           pip install pytest-cov
     
-    - name: Run tests with coverage
+      - name: Run tests with coverage
         run: |
           pytest --cov --cov-report=xml:coverage.xml --cov-report=term
       
