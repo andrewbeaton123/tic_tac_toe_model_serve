@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tic_tac_toe_model_serve"
+version = "0.1.0"
+description = "A FastAPI service for serving a Tic Tac Toe RL model"
+authors = [{name = "Andrew Beaton"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "loguru",
+    "numpy",
+    "PyYAML",
+    "python-dotenv",
+    "pydantic",
+    "typing-extensions",
+    "pydantic-core",
+    "pytest",
+    "tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "httpx"
+]
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
