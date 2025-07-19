@@ -37,7 +37,7 @@ jobs:
     
       - name: Run tests with coverage
         run: |
-          pytest --cov=./tic_tac_toe_model_serve  --cov-report=xml:coverage.xml
+          pytest --cov  --cov-report=xml:coverage.xml
 
       - name: Generate coverage badge
         uses: tj-actions/coverage-badge-py@v2 # Or another badge action
