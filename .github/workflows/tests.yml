@@ -37,16 +37,21 @@ jobs:
     
       - name: Run tests with coverage
         run: |
-          pytest --cov --cov-report=xml:coverage.xml --cov-report=term -o coverage.svg
-      
-      - name: Commit coverage badge
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add coverage.xml  # GitHub Actions looks for coverage.xml by default
-          git add coverage.svg
-          git commit -m "Update coverage report" || echo "No changes to commit"
-          git push 
+          pytest --cov-report=xml:coverage.xml
+        # Replace './your_module' with the path to your code to be covered
 
-      - name: Upload coverage to GitHub
-        uses: codecov/codecov-github-action@v2
+      - name: Generate coverage badge
+        uses: tj-actions/coverage-badge-py@v2 # Or another badge action
+        with:
+          path: coverage.xml # Path to your coverage XML report
+          output: coverage.svg # Name of the generated badge file
+          overwrite: true # Overwrite existing badge if it exists
+
+      - name: Commit coverage badge (optional, for README)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add coverage.svg
+          git commit -m "Update coverage badge" || echo "No changes to commit"
+          git push
