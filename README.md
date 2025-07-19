@@ -1,3 +1,5 @@
+
+![Coverage](https://raw.githubusercontent.com/andrewbeaton123/tic_tac_toe_model_serve/Initial_testing/coverage.svg)
 # Tic Tac Toe Model Serve
 
 A FastAPI-based REST API for serving a trained reinforcement learning agent that predicts the next move in Tic Tac Toe. The agent uses Q-values learned via Monte Carlo methods and can be integrated into web apps, bots, or other services.
