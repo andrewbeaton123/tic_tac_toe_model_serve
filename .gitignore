@@ -44,6 +44,7 @@ htmlcov/
 .cache
 nosetests.xml
 
+
 *.cover
 .hypothesis/
 .pytest_cache/
@@ -125,3 +126,4 @@ dmypy.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
