@@ -45,7 +45,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add coverage.xml  # GitHub Actions looks for coverage.xml by default
           git commit -m "Update coverage report" || echo "No changes to commit"
-          git push
+          git push -f
 
       - name: Upload coverage to GitHub
         uses: codecov/codecov-github-action@v2
