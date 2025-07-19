@@ -9,3 +9,4 @@ pydantic
 typing-extensions
 pydantic-core
 pytest
+pandas
