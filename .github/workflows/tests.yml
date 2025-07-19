@@ -16,6 +16,8 @@ jobs:
   #run on the latest ubuntu version
     runs-on: ubuntu-latest
 
+    env: 
+      API_KEY:  "T3ST_K3Y"
     steps:
     #get the current code
       - name: Checkout repository
