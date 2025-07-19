@@ -1,21 +1,40 @@
-# Use official Python image
-FROM python:3.10-slim-bullseye
+# Stage 1: Build the application
+FROM python:3.10-alpine AS builder
 
-# Upgrade system packages to reduce vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
 WORKDIR /app
 
-# Copy requirements file and install dependencies
+# Install git (needed for installing tic_tac_toe_game from git URL)
+RUN apk add --no-cache git build-base python3-dev
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
 COPY . .
 
-# Expose port for FastAPI
-EXPOSE 8000
+# Stage 2: Create the final image
+FROM python:3.10-alpine AS final
 
-# Run the FastAPI app with Uvicorn
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+WORKDIR /app
+
+
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder /app/.venv ./.venv
+
+# Copy application code and configuration
+COPY --from=builder /app/app.py .
+COPY --from=builder /app/config.yml .
+COPY --from=builder /app/start.sh .
+COPY --from=builder /app/src ./src
+
+# ARG for Q-values file: Allows specifying a different Q-values file at build time.
+# Example: docker build --build-arg Q_VALUES_FILE=another_q_values.pkl -t my_app .
+ARG Q_VALUES_FILE=saved_q_values.pkl
+COPY ${Q_VALUES_FILE} .
+
+# To change Q-values at runtime without rebuilding the image, mount a volume:
+# Example: docker run -v /path/to/your/q_values.pkl:/app/saved_q_values.pkl my_app
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+CMD ["/app/start.sh"]
