@@ -39,12 +39,14 @@ jobs:
         run: |
           pytest --cov  --cov-report=xml:coverage.xml
 
-      - name: Generate coverage badge
-        uses: tj-actions/coverage-badge-py@v2 # Or another badge action
+      - name: Coverage Badge
+        uses: tj-actions/coverage-badge-py@v2
+
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v16
+        id: verify-changed-files
         with:
-          path: coverage.xml # Path to your coverage XML report
-          output: coverage.svg # Name of the generated badge file
-          overwrite: true # Overwrite existing badge if it exists
+          files: coverage.svg
 
       - name: Commit coverage badge (optional, for README)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
