@@ -89,6 +89,12 @@ pip install -r requirements.txt
     ```sh
     uvicorn app:app --reload
     ```
+    4.1 **Start  NGROK**
+
+    ```sh 
+    ngrok http 8000 
+    ```
+    Take the new NGROK link and place it into the current managed api in azure
 
 5.  **Send a prediction request**
 
