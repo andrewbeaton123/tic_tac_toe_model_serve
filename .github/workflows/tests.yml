@@ -1,0 +1,56 @@
+
+
+name: Run Tests and Report Coverage
+
+#perform on push and when a pull request  happens
+on: [push, pull_request]
+
+#gives the action write permission so that it can push the badge results
+permissions:
+  contents: write
+
+
+jobs:
+  test:
+
+  #run on the latest ubuntu version
+    runs-on: ubuntu-latest
+
+    env: 
+      API_KEY:  "T3ST_K3Y"
+    steps:
+    #get the current code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+    
+    #use python 3.10
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+    
+    #as I am using pytest i need to pip install pytest and that badge 
+      - name: Install dependencies
+        run: |
+          pip install .[test]  
+          pip install pytest-cov coverage-badge
+    
+      - name: Run tests with coverage
+        run: |
+          pytest --cov  --cov-report=xml:coverage.xml
+
+      
+    # run the test and generate the xml
+      - name: Run tests with coverage
+        run: |
+          pytest --cov --cov-report=xml --cov-report=term
+          coverage-badge -o coverage.svg -f
+    
+    #generate the badge using the default github actions user 
+      - name: Commit coverage badge
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add coverage.svg
+          git commit -m "Update coverage badge" || echo "No changes to commit"
+          git push
