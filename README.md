@@ -11,7 +11,9 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 - **Easy Integration**: Simple HTTP endpoint for predictions.
 - **Structured Logging**: Uses Loguru for structured, JSON-formatted request and application logging.
 - **Configurable Validation**: Game rules and allowed players are loaded from `config.yml`.
-- **API Key Authentication**: Secure access to the prediction endpoint.
+- **Two-Layer Authentication**: 
+  - Azure API Management authentication for client access
+  - Internal API key validation for secure service-to-service communication
 
 ## Project Structure
 
@@ -72,23 +74,41 @@ pip install -r requirements.txt
 2.  **Configure `config.yml`**
     Ensure `config.yml` is present in the root directory with the necessary game configurations. An example is provided in the project structure.
 
-3.  **Set up API Key**
-    The application uses an API key for authentication. Set the `API_KEY` environment variable before starting the application.
+3.  **Authentication Setup**
+    
+    The application uses a two-layer authentication system:
 
-    Example (Linux/macOS):
-    ```bash
-    export API_KEY="your_secret_api_key"
-    ```
-    Example (Windows PowerShell):
-    ```powershell
-    $env:API_KEY="your_secret_api_key"
-    ```
+    a. **Azure API Management Authentication**
+    - Your API is protected by Azure API Management
+    - Clients need an Azure subscription key to access the API
+    - Configure this in Azure Portal under API Management Services
+
+    b. **Internal API Key**
+    - Set the internal API key as an environment variable:
+      ```bash
+      # Linux/macOS
+      export API_KEY="your_secret_api_key"
+      
+      # Windows PowerShell
+      $env:API_KEY="your_secret_api_key"
+      ```
+    - This key is used for service-to-service authentication
+    - Azure API Management will automatically include this key in requests to your API
 
 4.  **Start the API server**
 
+    a. **Start the Local Server**
     ```sh
     uvicorn app:app --reload
     ```
+
+    b. **Create Public Endpoint with NGROK**
+    ```sh
+    ngrok http 8000
+    ```
+    - Copy the NGROK URL (e.g., `https://1234-your-ngrok-url.ngrok.io`)
+    - Update your Azure API Management service with this URL as the backend
+    - NGROK URL needs to be updated in Azure whenever it changes
     4.1 **Start  NGROK**
 
     ```sh 
@@ -98,7 +118,7 @@ pip install -r requirements.txt
 
 5.  **Send a prediction request**
 
-    Send a `POST` request to the `/next_move` endpoint with a JSON body and the API key in the header:
+    Send a `POST` request to your Azure API Management endpoint with:
 
     ```json
     {
@@ -107,8 +127,16 @@ pip install -r requirements.txt
     }
     ```
 
-    **Headers:**
-    `tic-tac-key: your_secret_api_key`
+    **Required Headers:**
+    ```
+    Ocp-Apim-Subscription-Key: your-azure-subscription-key
+    Content-Type: application/json
+    ```
+
+    The Azure API Management service will:
+    1. Validate your subscription key
+    2. Forward the request to your API with the internal API key
+    3. Return the response from your API
 
     -   `current_player`: `1` or `2` (as defined in `config.yml`).
     -   `game_state`: A flat list of 9 integers representing the board (0=empty, 1=player 1, 2=player 2).
