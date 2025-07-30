@@ -32,18 +32,14 @@ jobs:
     #as I am using pytest i need to pip install pytest and that badge 
       - name: Install dependencies
         run: |
-          pip install .[test]  
-          pip install pytest-cov coverage-badge
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov coverage-badge
+          pip install -e .  # Install package in editable mode
     
       - name: Run tests with coverage
         run: |
-          pytest --cov  --cov-report=xml:coverage.xml
-
-      
-    # run the test and generate the xml
-      - name: Run tests with coverage
-        run: |
-          pytest --cov --cov-report=xml --cov-report=term
+          python -m pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
           coverage-badge -o coverage.svg -f
     
     #generate the badge using the default github actions user 
