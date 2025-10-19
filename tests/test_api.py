@@ -1,4 +1,3 @@
-
 import sys
 sys.path.append('./')
 
@@ -16,9 +15,9 @@ def get_test_api_key():
 client = TestClient(app)
 
 def test_no_next_move_detection():
-    with app.override_dependencies({
-        get_api_key: get_test_api_key
-    }):
+    # Manually override dependency for this test
+    app.dependency_overrides[get_api_key] = get_test_api_key
+    try:
         response = client.post(
             "/next_move",
             headers={"tic-tac-key": TEST_API_KEY},
@@ -27,13 +26,17 @@ def test_no_next_move_detection():
                 "game_state": [1, 1, 2, 2, 1, 1, 2, 2, 2]
             }
         )
+    finally:
+        # Clean up the override after the test
+        del app.dependency_overrides[get_api_key]
+
     assert response.status_code == 422
     assert response.json() == {"detail": "No valid moves available."}
 
 def test_next_move_success():
-    with app.override_dependencies({
-        get_api_key: get_test_api_key
-    }):
+    # Manually override dependency for this test
+    app.dependency_overrides[get_api_key] = get_test_api_key
+    try:
         response = client.post(
             "/next_move",
             headers={"tic-tac-key": TEST_API_KEY},
@@ -42,6 +45,10 @@ def test_next_move_success():
                 "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
             }
         )
+    finally:
+        # Clean up the override after the test
+        del app.dependency_overrides[get_api_key]
+
     assert response.status_code == 200
     assert "move" in response.json()
 
@@ -58,9 +65,9 @@ def test_invalid_api_key():
     assert response.status_code == 403
 
 def test_invalid_player():
-    with app.override_dependencies({
-        get_api_key: get_test_api_key
-    }):
+    # Manually override dependency for this test
+    app.dependency_overrides[get_api_key] = get_test_api_key
+    try:
         response = client.post(
             "/next_move",
             headers={"tic-tac-key": TEST_API_KEY},
@@ -69,12 +76,16 @@ def test_invalid_player():
                 "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
             }
         )
+    finally:
+        # Clean up the override after the test
+        del app.dependency_overrides[get_api_key]
+
     assert response.status_code == 422
 
 def test_invalid_game_state():
-    with app.override_dependencies({
-        get_api_key: get_test_api_key
-    }):
+    # Manually override dependency for this test
+    app.dependency_overrides[get_api_key] = get_test_api_key
+    try:
         response = client.post(
             "/next_move",
             headers={"tic-tac-key": TEST_API_KEY},
@@ -83,4 +94,8 @@ def test_invalid_game_state():
                 "game_state": [0, 1, 0, 2, 1, 0, 0, 2]
             }
         )
+    finally:
+        # Clean up the override after the test
+        del app.dependency_overrides[get_api_key]
+
     assert response.status_code == 422
