@@ -102,19 +102,24 @@ pip install -r requirements.txt
     uvicorn app:app --reload
     ```
 
-    b. **Create Public Endpoint with NGROK**
+### Running with Ngrok for Development
+
+When running the API locally for development and testing with Azure API Management, you need to expose your local server to the internet. `ngrok` is used for this purpose.
+
+1.  **Start the local server:**
+    ```sh
+    uvicorn app:app --reload --port 8000
+    ```
+
+2.  **Expose the local server with ngrok:**
     ```sh
     ngrok http 8000
     ```
-    - Copy the NGROK URL (e.g., `https://1234-your-ngrok-url.ngrok.io`)
-    - Update your Azure API Management service with this URL as the backend
-    - NGROK URL needs to be updated in Azure whenever it changes
-    4.1 **Start  NGROK**
 
-    ```sh 
-    ngrok http 8000 
-    ```
-    Take the new NGROK link and place it into the current managed api in azure
+3.  **Update Azure API Management:**
+    - `ngrok` will provide a public URL (e.g., `https://<random-string>.ngrok.io`).
+    - **Important:** If you are using the free tier of `ngrok`, this URL will be different every time you restart `ngrok`.
+    - You must manually update the backend URL of your API in the Azure API Management service to this new `ngrok` URL each time it changes. This is a manual process.
 
 5.  **Send a prediction request**
 
