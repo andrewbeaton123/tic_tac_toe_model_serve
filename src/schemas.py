@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel, Field, field_validator
-from src.config_loader import ALLOWED_PLAYERS
+from src.settings import settings
 
 class predict_request(BaseModel):
     current_player: int = Field(..., description="The current player.")
@@ -9,8 +9,8 @@ class predict_request(BaseModel):
     @field_validator('current_player')
     def validate_current_player(cls, v):
         vi = int(v)
-        if vi not in ALLOWED_PLAYERS:
-            raise ValueError(f"current_player must be one of {ALLOWED_PLAYERS}")
+        if vi not in settings.ALLOWED_PLAYERS:
+            raise ValueError(f"current_player must be one of {settings.ALLOWED_PLAYERS}")
         return vi
 
     @field_validator('game_state')

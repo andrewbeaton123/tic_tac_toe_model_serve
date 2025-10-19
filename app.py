@@ -12,10 +12,7 @@ from src.schemas import predict_request, next_move
 from src.middleware import log_request_performance
 from src.logging_config import logger
 from src.valid_state_check import check_game_state_valid
-from src.config_loader import Q_VALUES_PATH
-
-
-from src.config_loader import Q_VALUES_PATH
+from src.settings import settings # Import settings
 
 from src.errors.error_class import NoValidMovesAvailable
 from src.errors.error_handlers import no_valid_moves_available_handler

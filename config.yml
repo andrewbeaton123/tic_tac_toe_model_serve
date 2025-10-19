@@ -1,9 +1,0 @@
-
-games:
-  tic_tac_toe:
-    allowed_players: [1, 2]
-    min_players: 2
-    max_players: 2
-    display_name: "Tic Tac Toe"
-
-q_values_path: "saved_q_values.pkl"
