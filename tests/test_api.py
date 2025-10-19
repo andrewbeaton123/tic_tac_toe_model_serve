@@ -1,3 +1,4 @@
+
 import sys
 sys.path.append('./')
 
@@ -15,7 +16,7 @@ def get_test_api_key():
 client = TestClient(app)
 
 def test_no_next_move_detection():
-    with app.dependency_overrides({
+    with app.override_dependencies({
         get_api_key: get_test_api_key
     }):
         response = client.post(
@@ -30,7 +31,7 @@ def test_no_next_move_detection():
     assert response.json() == {"detail": "No valid moves available."}
 
 def test_next_move_success():
-    with app.dependency_overrides({
+    with app.override_dependencies({
         get_api_key: get_test_api_key
     }):
         response = client.post(
@@ -57,7 +58,7 @@ def test_invalid_api_key():
     assert response.status_code == 403
 
 def test_invalid_player():
-    with app.dependency_overrides({
+    with app.override_dependencies({
         get_api_key: get_test_api_key
     }):
         response = client.post(
@@ -71,7 +72,7 @@ def test_invalid_player():
     assert response.status_code == 422
 
 def test_invalid_game_state():
-    with app.dependency_overrides({
+    with app.override_dependencies({
         get_api_key: get_test_api_key
     }):
         response = client.post(
