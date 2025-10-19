@@ -1,3 +1,4 @@
+
 import sys
 sys.path.append('./')
 
@@ -22,7 +23,7 @@ def test_no_next_move_detection():
     )
 
     assert response.status_code == 422
-    #assert "detail_message" in response.json()
+    assert response.json() == {"detail": "No valid moves available."}
 
 def test_next_move_success():
     response  = client.post(
@@ -35,3 +36,36 @@ def test_next_move_success():
     )
     assert  response.status_code == 200 
     assert "move" in response.json()
+
+def test_invalid_api_key():
+    response  = client.post(
+        "/next_move",
+        headers={"tic-tac-key" : "invalid_key"}, 
+        json  = {
+            "current_player": 1,
+            "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
+        }
+    )
+    assert  response.status_code == 403
+
+def test_invalid_player():
+    response  = client.post(
+        "/next_move",
+        headers={"tic-tac-key" : API_KEY}, 
+        json  = {
+            "current_player": 3,
+            "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
+        }
+    )
+    assert  response.status_code == 422
+
+def test_invalid_game_state():
+    response  = client.post(
+        "/next_move",
+        headers={"tic-tac-key" : API_KEY}, 
+        json  = {
+            "current_player": 1,
+            "game_state": [0, 1, 0, 2, 1, 0, 0, 2]
+        }
+    )
+    assert  response.status_code == 422

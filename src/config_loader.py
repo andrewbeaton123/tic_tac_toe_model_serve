@@ -10,3 +10,4 @@ with open(CONFIG_FILE, 'r') as f:
 
 TIC_TAC_TOE_CONFIG = config.get("games", {}).get("tic_tac_toe", {})
 ALLOWED_PLAYERS = TIC_TAC_TOE_CONFIG.get("allowed_players", [1, 2])
+Q_VALUES_PATH = config.get("q_values_path")

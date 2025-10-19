@@ -1,13 +1,8 @@
+
 fastapi
 uvicorn
 loguru
-numpy
 PyYAML
+numpy
 python-dotenv
-tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git
-pydantic
-typing-extensions
-pydantic-core
-pytest
-pandas
-httpx
+git+https://github.com/andrewbeaton123/tic_tac_toe_game.git
