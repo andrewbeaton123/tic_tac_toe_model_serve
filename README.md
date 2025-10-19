@@ -51,10 +51,10 @@ Key dependencies include:
 - `tic_tac_learn`: Custom reinforcement learning library.
 - `PyYAML`: For loading configuration.
 
-Install all dependencies with:
+Install all dependencies, including those for testing, with:
 
 ```sh
-pip install -r requirements.txt
+pip install -e .[test]
 ```
 
 ## Usage

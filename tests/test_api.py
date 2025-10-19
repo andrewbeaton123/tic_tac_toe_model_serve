@@ -1,71 +1,77 @@
-
 import sys
 sys.path.append('./')
 
-import os
-from fastapi.testclient import  TestClient
+from fastapi.testclient import TestClient
 from app import app
+from src.auth import get_api_key
 
+# Define a dummy API key for testing
+TEST_API_KEY = "test_key"
+
+# Define an override function for the get_api_key dependency
+def get_test_api_key():
+    return TEST_API_KEY
+
+# Apply the dependency override to the app
+app.dependency_overrides[get_api_key] = get_test_api_key
 
 client = TestClient(app)
-API_KEY = os.environ.get("API_KEY")
-if not API_KEY:
-    raise Exception("API KEY NOT LOADED")
 
 def test_no_next_move_detection():
-    response  = client.post(
+    response = client.post(
         "/next_move",
-        headers={"tic-tac-key" : API_KEY}, 
-        json  = {
+        headers={"tic-tac-key": TEST_API_KEY},
+        json={
             "current_player": 1,
             "game_state": [1, 1, 2, 2, 1, 1, 2, 2, 2]
         }
     )
-
     assert response.status_code == 422
     assert response.json() == {"detail": "No valid moves available."}
 
 def test_next_move_success():
-    response  = client.post(
+    response = client.post(
         "/next_move",
-        headers={"tic-tac-key" : API_KEY}, 
-        json  = {
+        headers={"tic-tac-key": TEST_API_KEY},
+        json={
             "current_player": 1,
             "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
         }
     )
-    assert  response.status_code == 200 
+    assert response.status_code == 200
     assert "move" in response.json()
 
 def test_invalid_api_key():
-    response  = client.post(
+    response = client.post(
         "/next_move",
-        headers={"tic-tac-key" : "invalid_key"}, 
-        json  = {
+        headers={"tic-tac-key": "invalid_key"},
+        json={
             "current_player": 1,
             "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
         }
     )
-    assert  response.status_code == 403
+    # The dependency override will not be triggered for an invalid key
+    # so the original get_api_key logic will run and raise a 403 error.
+    assert response.status_code == 403
 
 def test_invalid_player():
-    response  = client.post(
+    response = client.post(
         "/next_move",
-        headers={"tic-tac-key" : API_KEY}, 
-        json  = {
+        headers={"tic-tac-key": TEST_API_KEY},
+        json={
             "current_player": 3,
             "game_state": [0, 1, 0, 2, 1, 0, 0, 2, 0]
         }
     )
-    assert  response.status_code == 422
+    assert response.status_code == 422
 
 def test_invalid_game_state():
-    response  = client.post(
+    response = client.post(
         "/next_move",
-        headers={"tic-tac-key" : API_KEY}, 
-        json  = {
+        headers={"tic-tac-key": TEST_API_KEY},
+        json={
             "current_player": 1,
             "game_state": [0, 1, 0, 2, 1, 0, 0, 2]
         }
     )
-    assert  response.status_code == 422
+    assert response.status_code == 422

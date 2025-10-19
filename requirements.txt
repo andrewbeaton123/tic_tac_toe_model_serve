@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-loguru
-PyYAML
-numpy
-python-dotenv
-git+https://github.com/andrewbeaton123/tic_tac_toe_game.git
-httpx
