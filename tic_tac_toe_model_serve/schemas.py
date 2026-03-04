@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel, Field, field_validator
-from src.settings import settings
+from tic_tac_toe_model_serve.settings import settings
 
 class predict_request(BaseModel):
     current_player: int = Field(..., description="The current player.")

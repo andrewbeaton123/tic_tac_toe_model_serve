@@ -1,6 +1,6 @@
 
 
-from src.errors.error_class import NoValidMovesAvailable
+from tic_tac_toe_model_serve.errors.error_class import NoValidMovesAvailable
 from typing import List
 
 def  check_game_state_valid(game_state: List):

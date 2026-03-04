@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Depends, Security
 from fastapi.security import APIKeyHeader
-from src.settings import settings
+from tic_tac_toe_model_serve.settings import settings
 
 API_KEY = settings.API_KEY
 API_KEY_NAME = "tic-tac-key"

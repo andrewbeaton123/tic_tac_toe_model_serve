@@ -3,7 +3,7 @@
 # Start Uvicorn in the background
 uvicorn app:app --host 0.0.0.0 --port 8000 &
 
-# Start Ngrok
+# Start Ngro
 # Use the NGROK_AUTH_TOKEN environment variable for authentication
 # Expose port 8000 (where Uvicorn is running)
 ngrok authtoken $NGROK_AUTH_TOKEN

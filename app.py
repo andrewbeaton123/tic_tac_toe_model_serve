@@ -2,20 +2,20 @@ import numpy as np
 
 from fastapi import FastAPI, Depends
 from tic_tac_toe_game import TicTacToe
-from src.prediction_agent import PredictionAgent
-from src.load_q_values import load_q_values
+from tic_tac_toe_model_serve.prediction_agent import PredictionAgent
+from tic_tac_toe_model_serve.load_q_values import load_q_values
 
 from pathlib import Path
 
-from src.auth import get_api_key
-from src.schemas import predict_request, next_move
-from src.middleware import log_request_performance
-from src.logging_config import logger
-from src.valid_state_check import check_game_state_valid
-from src.settings import settings # Import settings
+from tic_tac_toe_model_serve.auth import get_api_key
+from tic_tac_toe_model_serve.schemas import predict_request, next_move
+from tic_tac_toe_model_serve.middleware import log_request_performance
+from tic_tac_toe_model_serve.logging_config import logger
+from tic_tac_toe_model_serve.valid_state_check import check_game_state_valid
+from tic_tac_toe_model_serve.settings import settings # Import settings
 
-from src.errors.error_class import NoValidMovesAvailable
-from src.errors.error_handlers import no_valid_moves_available_handler
+from tic_tac_toe_model_serve.errors.error_class import NoValidMovesAvailable
+from tic_tac_toe_model_serve.errors.error_handlers import no_valid_moves_available_handler
 
 app = FastAPI()
 
@@ -26,7 +26,7 @@ app.middleware("http")(log_request_performance)
 
 
 
-from src.dependencies import get_prediction_agent
+from tic_tac_toe_model_serve.dependencies import get_prediction_agent
 
 @app.post("/next_move", response_model=next_move)
 async def predict_next_move(request_data: predict_request,
