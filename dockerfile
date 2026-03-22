@@ -6,35 +6,34 @@ WORKDIR /app
 # Install git (needed for installing tic_tac_toe_game from git URL)
 RUN apk add --no-cache git build-base python3-dev
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
+# Copy pyproject.toml, README.md, and the new package folder
+COPY pyproject.toml README.md tic_tac_toe_model_serve/ /app/
+RUN pip install --no-cache-dir .[test]
 
 # Stage 2: Create the final image
 FROM python:3.10-alpine AS final
 
 WORKDIR /app
 
+# Copy the installed packages from the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+
+# Copy application code
+COPY . .
+
+# Copy the Q-values file (assuming it's part of the build for now)
+# This can be overridden by mounting a volume at runtime if needed
+COPY saved_q_values.pkl .
+
+# Set environment variable for the Q-values path, defaulting to the copied file
+ENV Q_VALUES_PATH="/app/saved_q_values.pkl"
+
+# Set the PATH to include the site-packages where dependencies are installed
+ENV PATH="/usr/local/bin:$PATH"
 
 
-# Copy the virtual environment from the builder stage
-COPY --from=builder /app/.venv ./.venv
+# old method that starts ngrok and the api in the one location 
+#CMD ["/app/start.sh"]
 
-# Copy application code and configuration
-COPY --from=builder /app/app.py .
-COPY --from=builder /app/config.yml .
-COPY --from=builder /app/start.sh .
-COPY --from=builder /app/src ./src
-
-# ARG for Q-values file: Allows specifying a different Q-values file at build time.
-# Example: docker build --build-arg Q_VALUES_FILE=another_q_values.pkl -t my_app .
-ARG Q_VALUES_FILE=saved_q_values.pkl
-COPY ${Q_VALUES_FILE} .
-
-# To change Q-values at runtime without rebuilding the image, mount a volume:
-# Example: docker run -v /path/to/your/q_values.pkl:/app/saved_q_values.pkl my_app
-
-ENV PATH="/app/.venv/bin:$PATH"
-
-CMD ["/app/start.sh"]
+# new method that just starts the api using uvicorn
+CMD ["uvicorn app:app --host 0.0.0.0 --port 8000 &"]

@@ -33,13 +33,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov coverage-badge
-          pip install -e .  # Install package in editable mode
+          pip install -e .[test]
     
       - name: Run tests with coverage
         run: |
-          python -m pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
+          python -m pytest --cov=tic_tac_toe_model_serve --cov-report=xml:coverage.xml --cov-report=term
           coverage-badge -o coverage.svg -f
     
     #generate the badge using the default github actions user 

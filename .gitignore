@@ -53,6 +53,9 @@ nosetests.xml
 *.mo
 *.pot
 
+#gemini 
+.gemini
+
 # Django stuff:
 *.log
 local_settings.py

@@ -3,7 +3,8 @@ from fastapi import Request
 from loguru import logger
 
 async def log_request_performance(request: Request, call_next):
-    start_time = time.time()
+    
+    start_time = time.perf_counter()
     response = None
     try:
         response = await call_next(request)
@@ -11,7 +12,7 @@ async def log_request_performance(request: Request, call_next):
         logger.error(f"Request processing failed: {e}", exc_info=True)
         raise
     finally:
-        duration = time.time() - start_time
+        duration = time.perf_counter() - start_time
         status_code = response.status_code if response and hasattr(response, 'status_code') else 500
         logger.info({
             "path": request.url.path,

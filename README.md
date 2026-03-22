@@ -10,7 +10,7 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 - **Reinforcement Learning**: Uses a pre-trained Monte Carlo agent.
 - **Easy Integration**: Simple HTTP endpoint for predictions.
 - **Structured Logging**: Uses Loguru for structured, JSON-formatted request and application logging.
-- **Configurable Validation**: Game rules and allowed players are loaded from `config.yml`.
+
 - **Two-Layer Authentication**: 
   - Azure API Management authentication for client access
   - Internal API key validation for secure service-to-service communication
@@ -22,7 +22,7 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 ├── app.py                  # Main FastAPI application
 ├── requirements.txt        # Python dependencies
 ├── saved_q_values.pkl      # Trained Q-values (required)
-├── config.yml              # Application configuration (e.g., game rules)
+
 ├── src/
 │   ├── __init__.py
 │   ├── auth.py             # API key authentication logic
@@ -51,28 +51,29 @@ Key dependencies include:
 - `tic_tac_learn`: Custom reinforcement learning library.
 - `PyYAML`: For loading configuration.
 
-Install all dependencies with:
+Install all dependencies, including those for testing, with:
 
 ```sh
-pip install -r requirements.txt
+pip install -e .[test]
 ```
 
 ## Usage
 
-1.  **Q-values File (`saved_q_values.pkl`)**  
-    This file contains the trained Q-values for the agent. By default, `saved_q_values.pkl` is used.
+1.  **Q-values File**  
+    The path to the trained Q-values file (e.g., `saved_q_values.pkl`) is configured via the `Q_VALUES_PATH` setting. By default, it looks for `saved_q_values.pkl` in the root directory.
 
-    -   **At Build Time**: You can specify a different Q-values file using the `Q_VALUES_FILE` build argument:
+    -   **Configure `Q_VALUES_PATH`**: You can specify a different path using an environment variable or in a `.env` file:
         ```bash
-        docker build --build-arg Q_VALUES_FILE=path/to/your_q_values.pkl -t my_app .
+        # .env file or environment variable
+        Q_VALUES_PATH="path/to/your_q_values.pkl"
         ```
-    -   **At Runtime (using Docker Volume)**: To change the Q-values without rebuilding the image, mount a volume:
+
+    -   **At Runtime (using Docker Volume)**: To change the Q-values without rebuilding the image, mount a volume to the path specified by `Q_VALUES_PATH`:
         ```bash
         docker run -v /path/to/your/q_values.pkl:/app/saved_q_values.pkl my_app
         ```
 
-2.  **Configure `config.yml`**
-    Ensure `config.yml` is present in the root directory with the necessary game configurations. An example is provided in the project structure.
+
 
 3.  **Authentication Setup**
     
@@ -84,13 +85,10 @@ pip install -r requirements.txt
     - Configure this in Azure Portal under API Management Services
 
     b. **Internal API Key**
-    - Set the internal API key as an environment variable:
+    - Set the internal API key as an environment variable or in a `.env` file:
       ```bash
-      # Linux/macOS
-      export API_KEY="your_secret_api_key"
-      
-      # Windows PowerShell
-      $env:API_KEY="your_secret_api_key"
+      # .env file or environment variable
+      API_KEY="your_secret_api_key"
       ```
     - This key is used for service-to-service authentication
     - Azure API Management will automatically include this key in requests to your API
@@ -102,19 +100,24 @@ pip install -r requirements.txt
     uvicorn app:app --reload
     ```
 
-    b. **Create Public Endpoint with NGROK**
+### Running with Ngrok for Development
+
+When running the API locally for development and testing with Azure API Management, you need to expose your local server to the internet. `ngrok` is used for this purpose.
+
+1.  **Start the local server:**
+    ```sh
+    uvicorn app:app --reload --port 8000
+    ```
+
+2.  **Expose the local server with ngrok:**
     ```sh
     ngrok http 8000
     ```
-    - Copy the NGROK URL (e.g., `https://1234-your-ngrok-url.ngrok.io`)
-    - Update your Azure API Management service with this URL as the backend
-    - NGROK URL needs to be updated in Azure whenever it changes
-    4.1 **Start  NGROK**
 
-    ```sh 
-    ngrok http 8000 
-    ```
-    Take the new NGROK link and place it into the current managed api in azure
+3.  **Update Azure API Management:**
+    - `ngrok` will provide a public URL (e.g., `https://<random-string>.ngrok.io`).
+    - **Important:** If you are using the free tier of `ngrok`, this URL will be different every time you restart `ngrok`.
+    - You must manually update the backend URL of your API in the Azure API Management service to this new `ngrok` URL each time it changes. This is a manual process.
 
 5.  **Send a prediction request**
 
@@ -138,7 +141,7 @@ pip install -r requirements.txt
     2. Forward the request to your API with the internal API key
     3. Return the response from your API
 
-    -   `current_player`: `1` or `2` (as defined in `config.yml`).
+    -   `current_player`: `1` or `2` (as defined by `settings.ALLOWED_PLAYERS`).
     -   `game_state`: A flat list of 9 integers representing the board (0=empty, 1=player 1, 2=player 2).
 
     **Example Response:**
