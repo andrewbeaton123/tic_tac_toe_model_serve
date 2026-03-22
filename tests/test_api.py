@@ -3,8 +3,7 @@ sys.path.append('./')
 
 from fastapi.testclient import TestClient
 from app import app
-from src.auth import get_api_key
-
+from tic_tac_toe_model_serve.auth import get_api_key
 # Define a dummy API key for testing
 TEST_API_KEY = "test_key"
 
