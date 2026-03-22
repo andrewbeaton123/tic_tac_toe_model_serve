@@ -16,6 +16,7 @@ dependencies = [
     "numpy",
     "PyYAML",
     "python-dotenv",
+    "pydantic-settings",
     "pandas",
     "tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git"
 ]
@@ -25,7 +26,8 @@ test = [
     "pytest",
     "httpx",
     "pytest-cov",
-    "coverage-badge"
+    "coverage-badge",
+    "pydantic-settings"
 ]
 
 
