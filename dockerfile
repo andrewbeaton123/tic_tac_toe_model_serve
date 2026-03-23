@@ -7,8 +7,8 @@ WORKDIR /app
 RUN apk add --no-cache git build-base python3-dev
 
 # Copy pyproject.toml, README.md, and the new package folder
-COPY pyproject.toml README.md tic_tac_toe_model_serve/ /app/
-RUN pip install --no-cache-dir .[test]
+COPY  . /app/
+RUN pip install --no-cache-dir .
 
 # Stage 2: Create the final image
 FROM python:3.10-alpine AS final
