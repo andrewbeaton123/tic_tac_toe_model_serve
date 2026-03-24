@@ -16,6 +16,7 @@ FROM python:3.10-alpine AS final
 WORKDIR /app
 
 # Copy the installed packages from the builder stage
+COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
 # Copy application code
@@ -35,5 +36,8 @@ ENV PATH="/usr/local/bin:$PATH"
 # old method that starts ngrok and the api in the one location 
 #CMD ["/app/start.sh"]
 
+EXPOSE 9100
 # new method that just starts the api using uvicorn
-CMD ["uvicorn app:app --host 0.0.0.0 --port 8000 &"]
+#TODO: move the port address andd other options out to a environment variable
+
+ENTRYPOINT ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "9100"]
