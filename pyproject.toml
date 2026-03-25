@@ -28,7 +28,7 @@ test = [
     "httpx",
     "pytest-cov",
     "coverage-badge",
-    "pydantic-settings"
+    "pydantic-settings",
     "pre-commit"
 ]
 
