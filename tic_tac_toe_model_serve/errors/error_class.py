@@ -1,8 +1,8 @@
 
 from fastapi.responses import JSONResponse
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from pydantic import BaseModel
-from typing import Optional, List, Dict
+from typing import Optional, List
 
 class ErrorDetail(BaseModel):
     field: Optional[str] = None

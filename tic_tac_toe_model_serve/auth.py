@@ -1,4 +1,7 @@
-from fastapi import HTTPException, Depends, Security
+
+
+import secrets
+from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
 from tic_tac_toe_model_serve.settings import settings
 
@@ -7,7 +10,6 @@ API_KEY_NAME = "tic-tac-key"
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 
-import secrets
 
 async def get_api_key(api_key_header: str = Security(api_key_header)):
     if secrets.compare_digest(api_key_header, API_KEY):

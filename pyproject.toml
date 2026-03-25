@@ -18,6 +18,7 @@ dependencies = [
     "python-dotenv",
     "pydantic-settings",
     "pandas",
+    "ruff",
     "pre-commit",
     "tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git"
 ]
@@ -29,7 +30,8 @@ test = [
     "pytest-cov",
     "coverage-badge",
     "pydantic-settings",
-    "pre-commit"
+    "pre-commit",
+    "ruff"
 ]
 
 
