@@ -33,7 +33,7 @@ ENV Q_VALUES_PATH="/app/saved_q_values.pkl"
 ENV PATH="/usr/local/bin:$PATH"
 
 
-# old method that starts ngrok and the api in the one location 
+# old method that starts ngrok and the api in the one location
 #CMD ["/app/start.sh"]
 
 EXPOSE 9100

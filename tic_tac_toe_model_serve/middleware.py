@@ -3,7 +3,7 @@ from fastapi import Request
 from loguru import logger
 
 async def log_request_performance(request: Request, call_next):
-    
+
     start_time = time.perf_counter()
     response = None
     try:

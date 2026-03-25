@@ -32,12 +32,12 @@ from tic_tac_toe_model_serve.dependencies import get_prediction_agent
 async def predict_next_move(request_data: predict_request,
                              api_key: str = Depends(get_api_key),
                              agent: PredictionAgent = Depends(get_prediction_agent)):
-    
+
     check_game_state_valid(np.reshape(request_data.game_state, (3, 3)))
 
     current_game = TicTacToe(request_data.current_player,
                             np.reshape(request_data.game_state, (3, 3)))
-    
-    
+
+
     move_next = agent.get_action(current_game)
     return {"move": move_next}

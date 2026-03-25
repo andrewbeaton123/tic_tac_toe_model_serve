@@ -11,7 +11,7 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 - **Easy Integration**: Simple HTTP endpoint for predictions.
 - **Structured Logging**: Uses Loguru for structured, JSON-formatted request and application logging.
 
-- **Two-Layer Authentication**: 
+- **Two-Layer Authentication**:
   - Azure API Management authentication for client access
   - Internal API key validation for secure service-to-service communication
 
@@ -59,7 +59,7 @@ pip install -e .[test]
 
 ## Usage
 
-1.  **Q-values File**  
+1.  **Q-values File**
     The path to the trained Q-values file (e.g., `saved_q_values.pkl`) is configured via the `Q_VALUES_PATH` setting. By default, it looks for `saved_q_values.pkl` in the root directory.
 
     -   **Configure `Q_VALUES_PATH`**: You can specify a different path using an environment variable or in a `.env` file:
@@ -76,7 +76,7 @@ pip install -e .[test]
 
 
 3.  **Authentication Setup**
-    
+
     The application uses a two-layer authentication system:
 
     a. **Azure API Management Authentication**

@@ -13,8 +13,8 @@ class PredictionAgent:
         return tuple(int(x) for x in env.board.reshape(-1))
 
     def get_action(self, game_state: TicTacToe) -> int:
-        
-        
+
+
 
         state_key = self._get_state(game_state)
 
