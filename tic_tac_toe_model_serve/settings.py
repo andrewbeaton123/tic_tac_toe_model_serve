@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    API_KEY: str = Field(..., description="API key for authentication")
+    API_KEY: str = Field(default = ..., description="API key for authentication")
     Q_VALUES_PATH: str = Field("saved_q_values.pkl", description="Path to the saved Q-values file")
     ALLOWED_PLAYERS: List[int] = Field([1, 2], description="List of allowed player IDs")
     MIN_PLAYERS: int = Field(2, description="Minimum number of players allowed")
