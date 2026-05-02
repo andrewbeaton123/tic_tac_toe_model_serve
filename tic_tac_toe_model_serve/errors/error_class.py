@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi import HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
+from numpy import ndarray
 
 class ErrorDetail(BaseModel):
     field: Optional[str] = None
@@ -21,7 +22,7 @@ class ProblemDetails(BaseModel):
 
 class NoValidMovesAvailable(HTTPException):
 
-    def  __init__ (self, game_state :List) -> JSONResponse:
+    def  __init__ (self, game_state :ndarray):
         detail_message = f"Game state : {game_state} is has no valid moves to take"
 
         error_info =[
@@ -36,9 +37,7 @@ class NoValidMovesAvailable(HTTPException):
             type="docs/errors/no_valid_moves",
             title= "No valid moves to take",
             status = 422,
-            detail_message = detail_message,
+            detail = detail_message,
             errors= error_info ).model_dump(exclude_none=True)
         super().__init__(status_code=422, detail= problem_content)
 
-        # return  JSONResponse(status_code  = status.HTTP_422_UNPROCESSABLE_ENTITY,
-        #                     content = problem_content)
