@@ -23,6 +23,22 @@ app.middleware("http")(log_request_performance)
 
 
 
+# Issue 7 plan 
+# The new standard model format follows an mylfow pythonmodel
+## it hgas a predict method that expets  List[Dict[str,Union[int,List[int]]]] as its model input
+
+# Changes 
+# The loading of the model will need to change , pulling from local mlflow 
+# potentially raw local loading or remote mlflow server -- To be researched 
+
+# The predict_next_move endpoint will need to be changed, there is no expected need to create a game 
+# instance  - will need confirmed 
+
+# pydantic requirements of the input will need reviewed
+
+# tests will need upated 
+
+
 
 @app.post("/next_move", response_model=next_move)
 async def predict_next_move(request_data: predict_request,
