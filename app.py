@@ -53,3 +53,7 @@ async def predict_next_move(request_data: predict_request,
 
     move_next = agent.get_action(current_game)
     return {"move": move_next}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
