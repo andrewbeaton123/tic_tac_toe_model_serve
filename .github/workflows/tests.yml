@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      API_KEY:  "T3ST_K3Y"
+      API_KEY: "T3ST_K3Y"
+      MLFLOW_MODEL_URI: "models:/tictactoe-agent/1"
     steps:
     #get the current code
       - name: Checkout repository
