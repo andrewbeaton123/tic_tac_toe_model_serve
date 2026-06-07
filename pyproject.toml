@@ -20,6 +20,7 @@ dependencies = [
     "pandas",
     "ruff",
     "pre-commit",
+    "mlflow",
     "tic_tac_toe_game @ git+https://github.com/andrewbeaton123/tic_tac_toe_game.git"
 ]
 

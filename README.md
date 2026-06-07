@@ -2,15 +2,14 @@
 ![Coverage](/coverage.svg)
 # Tic Tac Toe Model Serve
 
-A FastAPI-based REST API for serving a trained reinforcement learning agent that predicts the next move in Tic Tac Toe. The agent uses Q-values learned via Monte Carlo methods and can be integrated into web apps, bots, or other services.
+A FastAPI-based REST API for serving a trained reinforcement learning agent that predicts the next move in Tic Tac Toe. The agent uses Q-values learned via Monte Carlo methods and is loaded at runtime from an MLflow model registry or local path.
 
 ## Features
 
 - **REST API**: Predict the next move for a given Tic Tac Toe board state.
-- **Reinforcement Learning**: Uses a pre-trained Monte Carlo agent.
-- **Easy Integration**: Simple HTTP endpoint for predictions.
+- **MLflow Model Serving**: Loads a `mlflow.pyfunc.PythonModel` at startup via a configurable URI — supports local paths, `runs:/` URIs, and `models:/` registry URIs.
+- **Reinforcement Learning**: Serves a pre-trained Monte Carlo Q-learning agent.
 - **Structured Logging**: Uses Loguru for structured, JSON-formatted request and application logging.
-
 - **Two-Layer Authentication**:
   - Azure API Management authentication for client access
   - Internal API key validation for secure service-to-service communication
@@ -19,109 +18,82 @@ A FastAPI-based REST API for serving a trained reinforcement learning agent that
 
 ```
 .
-├── app.py                  # Main FastAPI application
-├── requirements.txt        # Python dependencies
-├── saved_q_values.pkl      # Trained Q-values (required)
-
-├── src/
+├── app.py                              # Main FastAPI application
+├── pyproject.toml                      # Project metadata and dependencies
+├── tic_tac_toe_model_serve/
 │   ├── __init__.py
-│   ├── auth.py             # API key authentication logic
-│   ├── config_loader.py    # Loads configuration from config.yml
-│   ├── load_q_values.py    # Helper to load Q-values
-│   ├── logging_config.py   # Loguru configuration
-│   ├── middleware.py       # Custom FastAPI middleware (e.g., request logging)
-│   ├── prediction_agent.py # The prediction agent logic
-│   └── schemas.py          # Pydantic models for request/response validation
-├── logs/                   # Directory for log files
-├── dockerfile              # Docker container definition
-├── .gitignore              # Git ignore file
-└── LICENSE                 # Project License
+│   ├── auth.py                         # API key authentication logic
+│   ├── config_loader.py                # Re-exports key settings values
+│   ├── dependencies.py                 # FastAPI dependency: loads MLflow model
+│   ├── logging_config.py               # Loguru configuration
+│   ├── logging_intercept.py            # Standard library log intercept
+│   ├── middleware.py                   # Request performance logging middleware
+│   ├── schemas.py                      # Pydantic request/response models
+│   ├── settings.py                     # Pydantic BaseSettings (env / .env file)
+│   ├── valid_state_check.py            # Board state validation
+│   └── errors/
+│       ├── error_class.py              # Custom HTTP exception classes
+│       └── error_handlers.py           # FastAPI exception handlers
+├── tests/
+│   └── test_api.py                     # Pytest test suite
+├── logs/                               # Log output directory
+├── dockerfile                          # Docker container definition
+└── LICENSE
 ```
 
 ## Requirements
 
 - Python 3.10+
-- All dependencies are listed in `requirements.txt`.
+- Dependencies are managed via `pyproject.toml`.
 
-Key dependencies include:
-- `fastapi`: The web framework.
-- `uvicorn`: The ASGI server.
-- `loguru`: For logging.
-- `tic_tac_toe_game`: Custom game logic library.
-- `tic_tac_learn`: Custom reinforcement learning library.
-- `PyYAML`: For loading configuration.
+Key runtime dependencies:
+- `fastapi` / `uvicorn`: Web framework and ASGI server
+- `mlflow`: Model loading from MLflow tracking server or local path
+- `loguru`: Structured logging
+- `tic_tac_toe_game`: Custom game logic library (loaded from GitHub)
 
-Install all dependencies, including those for testing, with:
+Install all dependencies including test extras:
 
 ```sh
 pip install -e .[test]
 ```
 
+## Configuration
+
+All configuration is managed through environment variables or a `.env` file using Pydantic `BaseSettings`.
+
+| Variable | Required | Description |
+|---|---|---|
+| `API_KEY` | Yes | Internal API key for request authentication |
+| `MLFLOW_MODEL_URI` | Yes | MLflow URI of the trained model to serve |
+| `ALLOWED_PLAYERS` | No | Allowed player IDs (default: `[1, 2]`) |
+
+**Example `.env` file:**
+
+```bash
+export API_KEY="your_secret_api_key"
+export MLFLOW_MODEL_URI="models:/tictactoe-agent/1"
+```
+
+The `MLFLOW_MODEL_URI` accepts any valid MLflow model URI:
+
+| Format | Example | Use case |
+|---|---|---|
+| Local path | `./mlflow_model` | Development / offline |
+| Runs URI | `runs:/<run_id>/model` | Specific training run |
+| Registry URI | `models:/tictactoe-agent/1` | Production (Model Registry) |
+
 ## Usage
 
-1.  **Q-values File**
-    The path to the trained Q-values file (e.g., `saved_q_values.pkl`) is configured via the `Q_VALUES_PATH` setting. By default, it looks for `saved_q_values.pkl` in the root directory.
+1. **Set environment variables** in `.env` (see Configuration above).
 
-    -   **Configure `Q_VALUES_PATH`**: You can specify a different path using an environment variable or in a `.env` file:
-        ```bash
-        # .env file or environment variable
-        Q_VALUES_PATH="path/to/your_q_values.pkl"
-        ```
+2. **Start the API server:**
 
-    -   **At Runtime (using Docker Volume)**: To change the Q-values without rebuilding the image, mount a volume to the path specified by `Q_VALUES_PATH`:
-        ```bash
-        docker run -v /path/to/your/q_values.pkl:/app/saved_q_values.pkl my_app
-        ```
-
-
-
-3.  **Authentication Setup**
-
-    The application uses a two-layer authentication system:
-
-    a. **Azure API Management Authentication**
-    - Your API is protected by Azure API Management
-    - Clients need an Azure subscription key to access the API
-    - Configure this in Azure Portal under API Management Services
-
-    b. **Internal API Key**
-    - Set the internal API key as an environment variable or in a `.env` file:
-      ```bash
-      # .env file or environment variable
-      API_KEY="your_secret_api_key"
-      ```
-    - This key is used for service-to-service authentication
-    - Azure API Management will automatically include this key in requests to your API
-
-4.  **Start the API server**
-
-    a. **Start the Local Server**
     ```sh
     uvicorn app:app --reload
     ```
 
-### Running with Ngrok for Development
-
-When running the API locally for development and testing with Azure API Management, you need to expose your local server to the internet. `ngrok` is used for this purpose.
-
-1.  **Start the local server:**
-    ```sh
-    uvicorn app:app --reload --port 8000
-    ```
-
-2.  **Expose the local server with ngrok:**
-    ```sh
-    ngrok http 8000
-    ```
-
-3.  **Update Azure API Management:**
-    - `ngrok` will provide a public URL (e.g., `https://<random-string>.ngrok.io`).
-    - **Important:** If you are using the free tier of `ngrok`, this URL will be different every time you restart `ngrok`.
-    - You must manually update the backend URL of your API in the Azure API Management service to this new `ngrok` URL each time it changes. This is a manual process.
-
-5.  **Send a prediction request**
-
-    Send a `POST` request to your Azure API Management endpoint with:
+3. **Send a prediction request** — `POST /next_move`:
 
     ```json
     {
@@ -130,34 +102,55 @@ When running the API locally for development and testing with Azure API Manageme
     }
     ```
 
+    - `current_player`: `1` or `2`
+    - `game_state`: flat list of 9 integers — `0` = empty, `1` = player 1, `2` = player 2
+
     **Required Headers:**
     ```
-    Ocp-Apim-Subscription-Key: your-azure-subscription-key
+    tic-tac-key: your_api_key
     Content-Type: application/json
     ```
 
-    The Azure API Management service will:
-    1. Validate your subscription key
-    2. Forward the request to your API with the internal API key
-    3. Return the response from your API
-
-    -   `current_player`: `1` or `2` (as defined by `settings.ALLOWED_PLAYERS`).
-    -   `game_state`: A flat list of 9 integers representing the board (0=empty, 1=player 1, 2=player 2).
-
     **Example Response:**
-
     ```json
     {
       "move": 6
     }
     ```
 
-    -   `move`: The board index (0-8) of the agent's recommended move.
+    - `move`: Board index (0–8) of the agent's recommended next move.
+
+4. **Health check** — `GET /health`:
+
+    ```json
+    { "status": "ok" }
+    ```
+
+## Error Responses
+
+| Condition | Status | Detail |
+|---|---|---|
+| Invalid API key | 403 | Forbidden |
+| Board is full (no valid moves) | 422 | `"No valid moves available."` |
+| Untrained game state encountered | 422 | `"Untrained game state encountered: ..."` |
+| Invalid `current_player` value | 422 | Pydantic validation error |
+| `game_state` wrong length or values | 422 | Pydantic validation error |
+
+## Running with Ngrok for Development
+
+When testing locally against Azure API Management, expose your local server with ngrok:
+
+```sh
+uvicorn app:app --reload --port 8000
+ngrok http 8000
+```
+
+Update the backend URL in Azure API Management to the ngrok-provided URL. Note: the free tier assigns a new URL on each restart.
 
 ## Logging
 
 The application uses [Loguru](https://loguru.readthedocs.io/en/stable/) for logging.
-- Logs are automatically written to the `logs/` directory.
+- Logs are written to the `logs/` directory.
 - A new log file is created when the current one reaches 10 MB.
 - Logs are in JSON format for easy parsing and analysis.
 
